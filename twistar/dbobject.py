@@ -71,7 +71,7 @@ class DBObject(Validator):
         self._deleted = False
         self.errors = Errors()
         self.updateAttrs(kwargs)
-        self._config = Registry.getConfig()
+        self._config = None
 
         if self.__class__.RELATIONSHIP_CACHE is None:
             self.__class__.initRelationshipCache()
@@ -267,7 +267,8 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-            return self.__class__.deleteAll(where=["id = ?", oldid])
+            return self.__class__.deleteAll(
+                self._config, where=["id = ?", oldid])
 
         def _deleteOnSuccess(result):
             if result == False:
@@ -397,7 +398,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def find(klass, id=None, where=None, group=None, limit=None, orderby=None):
+    def find(klass, impl, id=None, where=None, group=None, limit=None, orderby=None):
         """
         Find instances of a given class.
 
@@ -423,13 +424,13 @@ class DBObject(Validator):
         otherwise.  If id is not specified and C{limit} is not 1, then a C{list} will
         be returned with all matching results.
         """
-        config = Registry.getConfig()
+        config = impl
         d = config.select(klass.tablename(), id, where, group, limit, orderby)
         return d.addCallback(createInstances, klass)
 
 
     @classmethod
-    def count(klass, where=None):
+    def count(klass, impl, where=None):
         """
         Count instances of a given class.
 
@@ -440,7 +441,7 @@ class DBObject(Validator):
 
         @return: A C{Deferred} which returns the total number of db records to a callback.
         """
-        config = Registry.getConfig()
+        config = impl
         return config.count(klass.tablename(), where=where)
 
 
@@ -457,7 +458,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def deleteAll(klass, where=None):
+    def deleteAll(klass, impl, where=None):
         """
         Delete all instances of C{klass} in the database without instantiating the records
         first or invoking callbacks (L{beforeDelete} is not called). This will run a single
@@ -468,7 +469,7 @@ class DBObject(Validator):
 
         @return: A C{Deferred}.        
         """
-        config = Registry.getConfig()
+        config = impl
         tablename = klass.tablename()
         return config.delete(tablename, where)
 

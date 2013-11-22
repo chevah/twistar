@@ -55,7 +55,7 @@ class InteractionBase:
         with call to L{log} function.
         """
         self.log(query, args, kwargs)
-        return Registry.DBPOOL.runOperation(query, *args, **kwargs)
+        return self.dbpool.runOperation(query, *args, **kwargs)
 
 
     def execute(self, query, *args, **kwargs):
@@ -64,7 +64,7 @@ class InteractionBase:
         with call to L{log} function.
         """        
         self.log(query, args, kwargs)
-        return Registry.DBPOOL.runQuery(query, *args, **kwargs)
+        return self.dbpool.runQuery(query, *args, **kwargs)
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
@@ -317,7 +317,7 @@ class InteractionBase:
     def runInteraction(self, interaction, *args, **kwargs):
         if self.txn is not None:
             return defer.succeed(interaction(self.txn, *args, **kwargs))
-        return Registry.DBPOOL.runInteraction(interaction, *args, **kwargs)
+        return self.dbpool.runInteraction(interaction, *args, **kwargs)
 
 
     def insertObj(self, obj):

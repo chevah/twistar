@@ -63,8 +63,13 @@ class Registry:
         that extends L{base.InteractionBase}.
         """
         if Registry.IMPL is not None:
-            return Registry.IMPL
-        
+            msg = "You must not use Registry.IMPL."
+            raise RuntimeError, msg
+
+        if Registry.DBPOOL is not None:
+            msg = "You must not use Registry.DBPOOL."
+            raise RuntimeError, msg
+
         if Registry.DBPOOL is None:
             msg = "You must set Registry.DBPOOL to a adbapi.ConnectionPool before calling this method."
             raise RuntimeError, msg

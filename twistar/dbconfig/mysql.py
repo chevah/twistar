@@ -11,7 +11,13 @@ class MySQLDBConfig(InteractionBase):
         if len(vals) > 0:
             return "(" + ",".join(["%s" for _ in vals.items()]) + ")"            
         return "VALUES ()"
-    
+
+    def getLastInsertID(self, txn):
+        """
+        Return last inserted row's ID or None.
+        """
+        return txn.lastrowid
+
 
 class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
     """
